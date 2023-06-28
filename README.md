@@ -16,13 +16,87 @@ create graphql queries and mutations based on a given JSON-Schema
 ## Install
 
 ```sh
-npm install
+yarn add @slub/json-schema-to-graphql
 ```
 
 ## Usage
 
-```sh
-npm run start
+given the following json schema
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/person.schema.json",
+  "$defs": {
+    "person": {
+      "type": "object",
+      "title": "Person",
+      "description": "A human being",
+      "required": [
+        "name",
+        "knows"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "knows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/person"
+          }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "title": "Person",
+  "description": "A human being",
+  "required": [
+    "name",
+    "knows"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "knows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/person"
+      }
+    }
+  }
+}
+```
+
+you can create a graphql query and mutation like this
+
+```js
+jsonSchemaToGraphQLQuery('Person', schema, { maxRecursion: 3 })
+```
+
+to get the following query
+
+```graphql
+query getPerson( $pk: ID! ) {
+    getPerson(pk: $pk) {
+        name
+        knows {
+            name
+            knows {
+                name
+                knows {
+                    name
+                    id
+                }
+                id
+            }
+            id
+        }
+        id
+    }
+}
 ```
 
 ## Run tests
