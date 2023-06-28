@@ -2,7 +2,7 @@ import { JSONSchema7 } from 'json-schema';
 import { isObject } from 'lodash';
 
 import { filterUndefOrNull } from './filterUndefOrNull';
-import {filterForPrimitiveProperties, JsonSchema, resolveSchema} from "@graviola/json-schema-core";
+import {JsonSchema, resolveSchema} from "@graviola/json-schema-core";
 
 export type GraphQLMappingOptions = {
   list?: boolean;
@@ -30,7 +30,6 @@ export const jsonSchemaPropertiesToGraphQLQuery: JsonSchemaPropertiesToGraphQLQu
   options,
   level = 0
 ) => {
-  const { list } = options || {};
   if (level > (options?.maxRecursion ?? 1)) return undefined;
   const propertiesList = filterUndefOrNull(
     Object.entries(rootProperty || {}).map(([key, p]) => {
@@ -77,12 +76,7 @@ export const jsonSchemaPropertiesToGraphQLQuery: JsonSchemaPropertiesToGraphQLQu
 export const jsonSchemaToGraphQLQuery = (entityType: string, schema: JSONSchema7, options?: GraphQLMappingOptions) => {
   const queryName = `get${entityType}${options?.list ? 'List' : ''}`;
 
-  const properties = Object.keys(filterForPrimitiveProperties(schema.properties))
-    .filter((p) => !p.startsWith('@'))
-    .filter((key) => !options?.propertyBlacklist?.includes(key))
-    .join('\n');
-
-  const properties2 = jsonSchemaPropertiesToGraphQLQuery(schema.properties, schema, options);
+  const properties = jsonSchemaPropertiesToGraphQLQuery(schema.properties, schema, options);
 
   const dict2Input = (dict: Record<string, any>) =>
     Object.entries(dict)
@@ -92,14 +86,12 @@ export const jsonSchemaToGraphQLQuery = (entityType: string, schema: JSONSchema7
   return options?.list
     ? `query ${queryName} {
       ${queryName}(pagination: {${dict2Input(options.input.pagination)}}) {
-      ${properties2}
+      ${properties}
       }
-    }
-    `
+    }`
     : `query ${queryName}( $pk: ID! ) {
       ${queryName}(pk: $pk) {
-      ${properties2}
+      ${properties}
       }
-    }
-    `;
+    }`;
 };
