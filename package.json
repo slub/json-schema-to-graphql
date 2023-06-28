@@ -1,0 +1,60 @@
+{
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build",
+    "size": "size-limit",
+    "analyze": "size-limit --why"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "name": "@slub/json-schema-to-graphql",
+  "description": "create graphql queries and mutations based on a given JSON-Schema",
+  "author": "Sebastian Tilsch",
+  "module": "dist/json-schema-to-graphql.esm.js",
+  "size-limit": [
+    {
+      "path": "dist/json-schema-to-graphql.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/json-schema-to-graphql.esm.js",
+      "limit": "10 KB"
+    }
+  ],
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^8.2.6",
+    "@types/lodash": "^4.14.195",
+    "husky": "^8.0.3",
+    "size-limit": "^8.2.6",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.6.0",
+    "typescript": "^3.9.10"
+  },
+  "dependencies": {
+    "@graviola/json-schema-core": "^0.1.3",
+    "lodash": "^4.17.21"
+  }
+}
