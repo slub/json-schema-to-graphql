@@ -6,6 +6,7 @@ import { JsonSchema, resolveSchema } from '@graviola/json-schema-core';
 
 export type GraphQLMappingOptions = {
   list?: boolean;
+  additionalFields?: string[];
   input?: any;
   propertyBlacklist?: string[];
   maxRecursion?: number;
@@ -31,7 +32,9 @@ export const jsonSchemaPropertiesToGraphQLQuery: JsonSchemaPropertiesToGraphQLQu
   level = 0
 ) => {
   if (level > (options?.maxRecursion ?? 1)) return undefined;
-  const propertiesList = filterUndefOrNull(
+  const propertiesList = [
+      ...(options?.additionalFields || []),
+      ...filterUndefOrNull(
     Object.entries(rootProperty || {}).map(([key, p]) => {
       if (
         options?.propertyBlacklist?.includes(key) ||
@@ -90,9 +93,8 @@ export const jsonSchemaPropertiesToGraphQLQuery: JsonSchemaPropertiesToGraphQLQu
           );
       }
       return undefined;
-    })
-  );
-  propertiesList.push('id');
+    }))
+  ]
   if (propertiesList.length === 0) return '';
   //prepend tabs at the beginning of each (amount of tabs = level)
   return propertiesList

@@ -1,5 +1,6 @@
 import { jsonSchemaToGraphQLQuery } from '../src/jsonSchemaToGraphQLQuery';
 import { JSONSchema7 } from 'json-schema';
+import * as fs from "fs";
 
 const schema: JSONSchema7 = {
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -59,10 +60,8 @@ describe('graphql list queries', () => {
       	name
 	likesProduct { 
 	    	name
-		description
-		id 
+		description 
 	  }
-	id
       }
     }`
     );
@@ -77,10 +76,8 @@ describe('graphql list queries', () => {
       getPerson(pk: $pk) {
       	name
 	knows { 
-	    	name
-		id 
+	    	name 
 	  }
-	id
       }
     }`
     );
@@ -91,6 +88,7 @@ describe('graphql list queries', () => {
       schemaWithNestedObject,
       { maxRecursion: 3 }
     );
+    fs.writeFileSync('test.graphql', graphqlQuery, 'utf-8');
     expect(graphqlQuery).toEqual(
       `query getPerson( $pk: ID! ) {
       getPerson(pk: $pk) {
@@ -100,14 +98,46 @@ describe('graphql list queries', () => {
 		knows { 
 		    	name
 			knows { 
-			    	name
-				id 
-			  }
-			id 
-		  }
-		id 
+			    	name 
+			  } 
+		  } 
 	  }
-	id
+      }
+    }`
+    );
+  });
+
+  it('with additional fields', () => {
+    const graphqlQuery = jsonSchemaToGraphQLQuery(
+        'Person',
+        schemaWithNestedObject,
+        {
+          maxRecursion: 3,
+          additionalFields: [ 'id', '__typename' ]
+        }
+    );
+    fs.writeFileSync('test.graphql', graphqlQuery, 'utf-8');
+    expect(graphqlQuery).toEqual(
+        `query getPerson( $pk: ID! ) {
+      getPerson(pk: $pk) {
+      	id
+	__typename
+	name
+	knows { 
+	    	id
+		__typename
+		name
+		knows { 
+		    	id
+			__typename
+			name
+			knows { 
+			    	id
+				__typename
+				name 
+			  } 
+		  } 
+	  }
       }
     }`
     );
