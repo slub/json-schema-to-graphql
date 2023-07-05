@@ -116,7 +116,6 @@ describe('graphql list queries', () => {
           additionalFields: [ 'id', '__typename' ]
         }
     );
-    fs.writeFileSync('test.graphql', graphqlQuery, 'utf-8');
     expect(graphqlQuery).toEqual(
         `query getPerson( $pk: ID! ) {
       getPerson(pk: $pk) {
@@ -142,4 +141,52 @@ describe('graphql list queries', () => {
     }`
     );
   });
+
+  it(' can handle lists', () => {
+    const graphqlQuery = jsonSchemaToGraphQLQuery(
+        'Person',
+        schema,
+        {
+          maxRecursion: 3,
+          list: true,
+          input: null
+        })
+    expect(graphqlQuery).toEqual(
+        `query getPersonList {
+      getPersonList {
+      	name
+	likesProduct { 
+	    	name
+		description 
+	  }
+      }
+    }`)
+  })
+
+  it('with pagination', () => {
+    const graphqlQuery = jsonSchemaToGraphQLQuery(
+        'Person',
+        schema,
+        {
+          maxRecursion: 3,
+          list: true,
+          input: {
+            pagination: {
+              limit: 10
+            }
+          }
+        })
+    fs.writeFileSync('test.graphql', graphqlQuery, 'utf-8');
+    expect(graphqlQuery).toEqual(
+        `query getPersonList {
+      getPersonList(pagination:  {limit: 10} ) {
+      	name
+	likesProduct { 
+	    	name
+		description 
+	  }
+      }
+    }`)
+
+  })
 });

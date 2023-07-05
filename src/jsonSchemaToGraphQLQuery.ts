@@ -119,14 +119,19 @@ export const jsonSchemaToGraphQLQuery = (
     options
   );
 
-  const dict2Input = (dict: Record<string, any>) =>
-    Object.entries(dict)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join(', ');
+  const dict2Input: (dict: Record<string, any>, curvedBrackets?: boolean) => string = (dict: Record<string, any>, curvedBrackets) => {
+    const openBrackets = !curvedBrackets ? '{' : '(';
+    const closeBrackets = !curvedBrackets ? '}' : ')';
+    //TODO: handle arrays
+    return dict ? openBrackets + Object.entries(dict)
+        .filter(([, value]) => typeof value !== 'undefined' && value !== null)
+        .map(([key, value]) => `${key}: ${typeof value === 'object' ? ` ${dict2Input(value as Record<string, any>,)} ` : value}`)
+        .join(', ') + closeBrackets : '';
+  };
 
   return options?.list
     ? `query ${queryName} {
-      ${queryName}(pagination: {${dict2Input(options.input.pagination)}}) {
+      ${queryName}${dict2Input(options.input, true)} {
       ${properties}
       }
     }`
