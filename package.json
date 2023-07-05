@@ -39,6 +39,7 @@
   "name": "@slub/json-schema-to-graphql",
   "description": "create graphql queries and mutations based on a given JSON-Schema",
   "author": "Sebastian Tilsch",
+  "repository": "git@github.com:slub/json-schema-to-graphql.git",
   "module": "dist/json-schema-to-graphql.esm.js",
   "size-limit": [
     {
